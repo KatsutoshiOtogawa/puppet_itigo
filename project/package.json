@@ -1,0 +1,12 @@
+{
+  "name": "puppet_itigo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/KatsutoshiOtogawa/youtube-dl-list.git",
+  "author": "KatsutoshiOtogawa <gh1ab7im@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^4.0.1",
+    "validator": "^13.1.1"
+  }
+}

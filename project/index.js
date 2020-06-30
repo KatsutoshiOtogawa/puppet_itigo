@@ -1,0 +1,85 @@
+
+// function でまとめる
+// みている時間が分からないため、
+// unsafe_download()
+// const { execSync } = require('child_process')
+// var validator = require('validator');
+// var fs = require('fs');
+// var path = require('path');
+// var readline = require('readline');
+const puppeteer = require('puppeteer');
+
+// var rs = fs.createReadStream(path.join(__dirname,'data','list.txt'));
+
+// var rl = readline.createInterface(rs, {});
+
+// rl.on('line', function(line) {
+//     if(validator.isURL(line)){
+//         const stdout = execSync(['youtube-dl','-o', "'" + path.join(__dirname,'data','output','%(title)s.%(ext)s') + "'",line].join(' '))
+//         console.log(`stdout: ${stdout.toString()}`)
+
+//     }
+
+// });
+
+(async () => {
+  const browser = await puppeteer.launch()
+  const page = await browser.newPage()
+  
+  const navigationPromise = page.waitForNavigation()
+  // ログイン画面に移動
+  await page.goto('https://secure.golden-gateway.com/sites/affid/user/index.php')
+  
+  await page.setViewport({ width: 1440, height: 637 })
+  
+  // 描画を待ったのちuser名、パスワードを入力
+  await page.waitForSelector('.contact > tbody > tr:nth-child(1) > td > input')
+  await page.type('input[name="affid"]', process.env.PUPPETEER_USERNAME);
+  await page.waitForSelector('.contact > tbody > tr:nth-child(2) > td > input')
+  await page.type('input[name="password"]', process.env.PUPPETEER_PASSWORD);
+
+  // ログインボタンをクリック
+  await page.waitForSelector('.sendbox > .form_btn > ul > li > .btn01')
+  await page.click('.sendbox > .form_btn > ul > li > .btn01')
+  
+  await navigationPromise
+  
+  await page.waitForSelector('.js-hiraku-offcanvas-body > #gnavi > .menu > .menu__mega:nth-child(3) > .init-bottom')
+  await page.click('.js-hiraku-offcanvas-body > #gnavi > .menu > .menu__mega:nth-child(3) > .init-bottom')
+  
+  // リンククリックにより移動広告作成に移動
+  await page.waitForSelector('.menu > .menu__mega:nth-child(3) > .menu__second-level > li:nth-child(3) > a')
+  await page.click('.menu > .menu__mega:nth-child(3) > .menu__second-level > li:nth-child(3) > a')
+  
+  await navigationPromise
+  
+  // セレクトボックスをクリックしてイチゴキャンディを選択
+  await page.waitForSelector('.cntBox > form > .d_link > dd > select')
+  await page.click('.cntBox > form > .d_link > dd > select')
+  await page.select('.cntBox > form > .d_link > dd > select', '002')
+  
+  // PDF作成処理
+  await page.pdf({
+    path: 'google_top.pdf',
+  });
+
+  // ここからループ 
+  //// textboxに貼り付け
+  // await page.waitForSelector('.cntBox > form > .d_link > dd > input')
+  // await page.click('.cntBox > form > .d_link > dd > input')
+  
+  // //// 広告作成ボタンをクリック
+  // await page.waitForSelector('#main > .cntBox > form > .d_link > .btn01')
+  // await page.click('#main > .cntBox > form > .d_link > .btn01')
+  
+  // await navigationPromise
+  
+  // //// 作成したurlコピー
+  // await page.waitForSelector('.cntBox > form > .inner > .inner > .btn02')
+  // await page.click('.cntBox > form > .inner > .inner > .btn02')
+
+  //// 値からhtmlを作成 
+  // ここまで
+
+  await browser.close()
+})()
