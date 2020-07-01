@@ -63,6 +63,8 @@ if (process.env.PUPPETEER_USERNAME == null || process.env.PUPPETEER_PASSWORD == 
   await page.click('.cntBox > form > .d_link > dd > select')
   await page.select('.cntBox > form > .d_link > dd > select', '002')
 
+  await navigationPromise
+
   listurl = [{
     url: "",
     img: ""
@@ -74,11 +76,16 @@ if (process.env.PUPPETEER_USERNAME == null || process.env.PUPPETEER_PASSWORD == 
   
   await page.type('input[name="other_url"]', listurl[0].url);
 
+  await navigationPromise
+
   //// 広告作成ボタンをクリック
   await page.waitForSelector('#main > .cntBox > form > .d_link > .btn01')
   await page.click('#main > .cntBox > form > .d_link > .btn01')
   
   await navigationPromise
+
+  // テキストボックスが描画されるまで待つ
+  await page.waitFor('input[name="frm_src"]');
   
   // //// 作成したurlコピー
   // await page.waitForSelector('.cntBox > form > .inner > .inner > .btn02')
