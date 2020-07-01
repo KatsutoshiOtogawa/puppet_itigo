@@ -57,34 +57,37 @@ if (process.env.PUPPETEER_USERNAME == null || process.env.PUPPETEER_PASSWORD == 
   //await page.click('.menu > .menu__mega:nth-child(3) > .menu__second-level > li:nth-child(3) > a')
   await page.goto('https://secure.golden-gateway.com/sites/affid/user/direct_link.php')
   await navigationPromise
-  // PDF作成処理
-  await page.pdf({
-    path: 'google_top.pdf',
-  });
-  // // セレクトボックスをクリックしてイチゴキャンディを選択
-  // await page.waitForSelector('.cntBox > form > .d_link > dd > select')
-  // await page.click('.cntBox > form > .d_link > dd > select')
-  // await page.select('.cntBox > form > .d_link > dd > select', '002')
-  
-  // // PDF作成処理
-  // await page.pdf({
-  //   path: 'google_top.pdf',
-  // });
 
-  // ここからループ 
+  // セレクトボックスをクリックしてイチゴキャンディを選択
+  await page.waitForSelector('.cntBox > form > .d_link > dd > select')
+  await page.click('.cntBox > form > .d_link > dd > select')
+  await page.select('.cntBox > form > .d_link > dd > select', '002')
+
+  listurl = [{
+    url: "",
+    img: ""
+  }]
+  // ここからループ listurl {url: img:}
   //// textboxに貼り付け
-  // await page.waitForSelector('.cntBox > form > .d_link > dd > input')
+  await page.waitForSelector('.cntBox > form > .d_link > dd > input')
   // await page.click('.cntBox > form > .d_link > dd > input')
   
-  // //// 広告作成ボタンをクリック
-  // await page.waitForSelector('#main > .cntBox > form > .d_link > .btn01')
-  // await page.click('#main > .cntBox > form > .d_link > .btn01')
+  await page.type('input[name="other_url"]', listurl[0].url);
+
+  //// 広告作成ボタンをクリック
+  await page.waitForSelector('#main > .cntBox > form > .d_link > .btn01')
+  await page.click('#main > .cntBox > form > .d_link > .btn01')
   
-  // await navigationPromise
+  await navigationPromise
   
   // //// 作成したurlコピー
   // await page.waitForSelector('.cntBox > form > .inner > .inner > .btn02')
   // await page.click('.cntBox > form > .inner > .inner > .btn02')
+
+  // PDF作成処理
+  await page.pdf({
+    path: 'google_top.pdf',
+  });
 
   //// 値からhtmlを作成 
   // ここまで
