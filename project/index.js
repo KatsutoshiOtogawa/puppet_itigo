@@ -22,6 +22,11 @@ const puppeteer = require('puppeteer');
 
 // });
 
+if (process.env.PUPPETEER_USERNAME == null || process.env.PUPPETEER_PASSWORD == null) {
+  console.log("you must input environment variable PUPPETEER_USERNAME and PUPPETEER_PASSWORD")
+  process.exit(1)
+}
+
 (async () => {
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
@@ -48,20 +53,23 @@ const puppeteer = require('puppeteer');
   await page.click('.js-hiraku-offcanvas-body > #gnavi > .menu > .menu__mega:nth-child(3) > .init-bottom')
   
   // リンククリックにより移動広告作成に移動
-  await page.waitForSelector('.menu > .menu__mega:nth-child(3) > .menu__second-level > li:nth-child(3) > a')
-  await page.click('.menu > .menu__mega:nth-child(3) > .menu__second-level > li:nth-child(3) > a')
-  
+  //await page.waitForSelector('.menu > .menu__mega:nth-child(3) > .menu__second-level > li:nth-child(3) > a')
+  //await page.click('.menu > .menu__mega:nth-child(3) > .menu__second-level > li:nth-child(3) > a')
+  await page.goto('https://secure.golden-gateway.com/sites/affid/user/direct_link.php')
   await navigationPromise
-  
-  // セレクトボックスをクリックしてイチゴキャンディを選択
-  await page.waitForSelector('.cntBox > form > .d_link > dd > select')
-  await page.click('.cntBox > form > .d_link > dd > select')
-  await page.select('.cntBox > form > .d_link > dd > select', '002')
-  
   // PDF作成処理
   await page.pdf({
     path: 'google_top.pdf',
   });
+  // // セレクトボックスをクリックしてイチゴキャンディを選択
+  // await page.waitForSelector('.cntBox > form > .d_link > dd > select')
+  // await page.click('.cntBox > form > .d_link > dd > select')
+  // await page.select('.cntBox > form > .d_link > dd > select', '002')
+  
+  // // PDF作成処理
+  // await page.pdf({
+  //   path: 'google_top.pdf',
+  // });
 
   // ここからループ 
   //// textboxに貼り付け
