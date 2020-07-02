@@ -91,20 +91,18 @@ if (process.env.PUPPETEER_USERNAME == null || process.env.PUPPETEER_PASSWORD == 
   // textareaが描画されるまで待つ
   await page.waitFor('textarea[name="frm_src"]');
   
-  await page.$eval('textarea[name="frm_src"]', item => {
-
-    client.connect(err => {
-      const collection = client.db(environment).collection("links");
-
-      collection.insertOne({affiliateurl: item.textContent})
-      // perform actions on the collection object
-      client.close();
-    });
- 
-    // listurl[0].affiriateurl = item.textContent;
+  url = await page.$eval('textarea[name="frm_src"]', item => {
+    return item.textContent;
   });
 
-  fs.writeFileSync(path.join(process.env.PUPPETEER_DATA,'student-2.json'), listurl);
+  console.log(await url)
+  client.connect(err => {
+    const collection = client.db(environment).collection("links");
+
+    collection.insertOne({affiliateurl: await url})
+    // perform actions on the collection object
+    client.close();
+  });
   // //// 作成したurlコピー
   // await page.waitForSelector('.cntBox > form > .inner > .inner > .btn02')
   // await page.click('.cntBox > form > .inner > .inner > .btn02')
