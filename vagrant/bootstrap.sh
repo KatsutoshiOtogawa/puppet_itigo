@@ -43,6 +43,7 @@ su - $loginuser << EOF
     cd puppet_itigo
     git config core.sparsecheckout true
     echo project/ >> .git/info/sparse-checkout
+    echo backend/ >> .git/info/sparse-checkout
     git read-tree -m -u HEAD
 EOF
 
@@ -58,6 +59,17 @@ setfacl -m d:g::--- /home/public/$loginuser
 
 # ログインユーザーの環境変数に他のユーザーとの共有用のディレクトリを書いておく。
 su $loginuser -c "echo export PUPPETEER_DATA=/home/public/$loginuser >> /home/$loginuser/.profile"
+
+# djangoのsecret_keyを作成する。djangoからは環境変数という形で引き継ぐ
+su - $loginuser python3 <<END
+from django.core.management.utils import get_random_secret_key
+import os
+
+secret_key = get_random_secret_key()
+
+with open(os.path.join(os.environ['HOME'],'.profile'), 'a') as f:
+    f.write("export DJANGO_SECRET_KEY={0}\n".format(secret_key))
+END
 
 ## puppeteerはデスクトップ環境が必要なためインストール。
 ## ログイン自体はcuiでもいいのでmulti-userにしておく。
