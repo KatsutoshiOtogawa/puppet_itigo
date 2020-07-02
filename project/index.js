@@ -4,8 +4,8 @@
 // unsafe_download()
 // const { execSync } = require('child_process')
 // var validator = require('validator');
-// var fs = require('fs');
-// var path = require('path');
+var fs = require('fs');
+var path = require('path');
 // var readline = require('readline');
 const puppeteer = require('puppeteer');
 
@@ -67,6 +67,7 @@ if (process.env.PUPPETEER_USERNAME == null || process.env.PUPPETEER_PASSWORD == 
 
   listurl = [{
     url: "",
+    affiriateurl: "",
     img: ""
   }]
   // ここからループ listurl {url: img:}
@@ -84,16 +85,21 @@ if (process.env.PUPPETEER_USERNAME == null || process.env.PUPPETEER_PASSWORD == 
   
   await navigationPromise
 
-  // テキストボックスが描画されるまで待つ
-  await page.waitFor('input[name="frm_src"]');
+  // textareaが描画されるまで待つ
+  await page.waitFor('textarea[name="frm_src"]');
   
+  await page.$eval('textarea[name="frm_src"]', item => {
+    listurl[0].affiriateurl = item.textContent;
+  });
+
+  fs.writeFileSync(path.join(process.env.PUPPETEER_DATA,'student-2.json'), listurl);
   // //// 作成したurlコピー
   // await page.waitForSelector('.cntBox > form > .inner > .inner > .btn02')
   // await page.click('.cntBox > form > .inner > .inner > .btn02')
 
   // PDF作成処理
   await page.pdf({
-    path: 'google_top.pdf',
+    path: path.join(process.env.PUPPETEER_DATA,'google_top.pdf'),
   });
 
   //// 値からhtmlを作成 
