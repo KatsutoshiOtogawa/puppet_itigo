@@ -8,6 +8,14 @@ var fs = require('fs');
 var path = require('path');
 // var readline = require('readline');
 const puppeteer = require('puppeteer');
+const MongoClient = require("mongodb").MongoClient;
+ 
+// 接続文字列
+const uri = "mongodb://localhost/sampledb";
+
+const client = new MongoClient(uri, { useNewUrlParser: true });
+
+const environment = "test"
 
 // var rs = fs.createReadStream(path.join(__dirname,'data','list.txt'));
 
@@ -65,17 +73,12 @@ if (process.env.PUPPETEER_USERNAME == null || process.env.PUPPETEER_PASSWORD == 
 
   await navigationPromise
 
-  listurl = [{
-    url: "",
-    affiriateurl: "",
-    img: ""
-  }]
   // ここからループ listurl {url: img:}
   //// textboxに貼り付け
   await page.waitForSelector('.cntBox > form > .d_link > dd > input')
   // await page.click('.cntBox > form > .d_link > dd > input')
   
-  await page.type('input[name="other_url"]', listurl[0].url);
+  await page.type('input[name="other_url"]', "");
 
   await navigationPromise
 
@@ -89,7 +92,16 @@ if (process.env.PUPPETEER_USERNAME == null || process.env.PUPPETEER_PASSWORD == 
   await page.waitFor('textarea[name="frm_src"]');
   
   await page.$eval('textarea[name="frm_src"]', item => {
-    listurl[0].affiriateurl = item.textContent;
+
+    client.connect(err => {
+      const collection = client.db(environment).collection("links");
+
+      collection.insertOne({affiliateurl: item.textContent})
+      // perform actions on the collection object
+      client.close();
+    });
+ 
+    // listurl[0].affiriateurl = item.textContent;
   });
 
   fs.writeFileSync(path.join(process.env.PUPPETEER_DATA,'student-2.json'), listurl);
