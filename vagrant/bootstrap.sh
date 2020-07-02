@@ -1,5 +1,5 @@
 apt-get update && apt-get -y upgrade
-apt install -y git yarnpkg mongo
+apt install -y git yarnpkg mongo python3-django python3-django-uwsgi
 
 # ansible 利用のための設定
 ## デフォルトのログインユーザー,vagrantの場合はvagrant,awsなどはec2-userなど
