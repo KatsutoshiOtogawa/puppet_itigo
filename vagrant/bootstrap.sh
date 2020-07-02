@@ -1,5 +1,5 @@
 apt-get update && apt-get -y upgrade
-apt install -y git yarnpkg mongo python3-django python3-django-uwsgi
+apt install -y git yarnpkg mongo pipenv
 
 # ansible 利用のための設定
 ## デフォルトのログインユーザー,vagrantの場合はvagrant,awsなどはec2-userなど
@@ -60,7 +60,10 @@ setfacl -m d:g::--- /home/public/$loginuser
 # ログインユーザーの環境変数に他のユーザーとの共有用のディレクトリを書いておく。
 su $loginuser -c "echo export PUPPETEER_DATA=/home/public/$loginuser >> /home/$loginuser/.profile"
 
+su $loginuser -c "python3 -m venv pythondevelop"
+
 # djangoのsecret_keyを作成する。djangoからは環境変数という形で引き継ぐ
+apt install -y python3-django
 su - $loginuser python3 <<END
 from django.core.management.utils import get_random_secret_key
 import os
@@ -70,8 +73,13 @@ secret_key = get_random_secret_key()
 with open(os.path.join(os.environ['HOME'],'.profile'), 'a') as f:
     f.write("export DJANGO_SECRET_KEY=\'{0}\'\n".format(secret_key))
 END
+# アプリケーションはプロジェクトにある側のdjangoを使うので、os側のものはアンインストールしておく。
+apt remove -y python3-django
 
 ## puppeteerはデスクトップ環境が必要なためインストール。
 ## ログイン自体はcuiでもいいのでmulti-userにしておく。
 apt-get -y install ubuntu-desktop
 systemctl set-default multi-user
+
+# ごみを削除
+apt autoremove -y
