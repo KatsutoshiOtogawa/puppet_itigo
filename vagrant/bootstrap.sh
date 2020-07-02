@@ -68,7 +68,7 @@ import os
 secret_key = get_random_secret_key()
 
 with open(os.path.join(os.environ['HOME'],'.profile'), 'a') as f:
-    f.write("export DJANGO_SECRET_KEY={0}\n".format(secret_key))
+    f.write("export DJANGO_SECRET_KEY=\'{0}\'\n".format(secret_key))
 END
 
 ## puppeteerはデスクトップ環境が必要なためインストール。
