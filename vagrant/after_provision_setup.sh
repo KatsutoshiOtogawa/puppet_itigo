@@ -12,6 +12,10 @@ secret_key="ansible_ecdsa"
 
 password_file="ansible_password.yml"
 
+server_ip="192.168.33.10"
+
+server_hostname="ubuntu-focal"
+
 # you want to use ssh directory.
 # ex) ./.ssh #-> inside of project
 # ex) $HOME/.ssh #-> you using user .ssh
@@ -22,8 +26,18 @@ secret_key_path=$ssh_directory/$secret_key
 # sshでログイン用のプロジェクト配下に作成
 mkdir -m 700 $ssh_directory
 
-# vagrant(server)側の設定をクライアント側のPCに書く。
-vagrant ssh-config  --host $ssh_config_host >> $ssh_directory/config
+# vagrantの場合はconfigファイルを書いておく。
+if [ $ssh_config_host == 'vagrant' ]; then
+    # vagrant(server)側の設定をクライアント側のPCに書く。
+    vagrant ssh-config  --host $ssh_config_host >> $ssh_directory/config
+if
+
+# 指定されたssh/configが無い場合はエラーにして設定を求める
+cat $ssh_directory/config | grep -E ^Host | grep $ssh_config_host >> /dev/null
+if [ $? == 1 ]; then
+    echo you config $ssh_directory/config!
+    exit 1;
+fi
 
 # scpは非推奨になったためsftpで実装
 sftp -F $ssh_directory/config $ssh_config_host  <<END
@@ -61,3 +75,12 @@ ssh -F $ssh_directory/config $ssh_config_host "echo export PUPPETEER_USERNAME=$P
 # アプリケーションのパスワード名
 read -sp "input site password>" PUPPETEER_PASSWORD
 ssh -F $ssh_directory/config $ssh_config_host "echo export PUPPETEER_PASSWORD=$PUPPETEER_PASSWORD >> /home/$loginuser/.profile"
+
+# ansibleで解決できないか確認。
+# アプリケーションサーバーの外部から参照するためのホスト名
+# これがないとALLOWED_HOSTなどを開発時と環境時でがちゃがちゃ触る必要があるので、
+# 非効率。
+sudo su <<END
+    echo # below record is develop server record. >> /etc/hosts
+    echo "$server_ip $server_hostname $server_hostname" >> /etc/hosts
+END
