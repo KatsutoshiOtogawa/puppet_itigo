@@ -1,5 +1,5 @@
 apt-get update && apt-get -y upgrade
-apt install -y git yarnpkg
+apt install -y git yarnpkg mongo
 
 # ansible 利用のための設定
 ## デフォルトのログインユーザー,vagrantの場合はvagrant,awsなどはec2-userなど
@@ -48,12 +48,16 @@ EOF
 
 # $loginuserのファイルを他のユーザーに渡すためのディレクトリ
 mkdir -m 755 /home/public
-mkdir -m 700 /home/public/$loginuser
+# mkdir -m 700 /home/public/$loginuser
 chown $loginuser:$loginuser /home/public/$loginuser
 
-# ansibleユーザーにディレクトリに対し読み込みと実行権限を与える。
+# ansibleユーザーに対してのみ、ディレクトリに対し読み込みと実行権限を与える。
 # ここにあるファイルの削除は$loginuserの責任とする。
-setfacl -m u:ansible:rx /home/public/$loginuser
+setfacl -m d:u:ansible:rx /home/public/$loginuser
+setfacl -m d:g::--- /home/public/$loginuser
+
+# ログインユーザーの環境変数に他のユーザーとの共有用のディレクトリを書いておく。
+su $loginuser -c "echo export PUPPETEER_DATA=/home/public/$loginuser >> /home/$loginuser/.profile"
 
 ## puppeteerはデスクトップ環境が必要なためインストール。
 ## ログイン自体はcuiでもいいのでmulti-userにしておく。
