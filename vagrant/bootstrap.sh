@@ -1,5 +1,8 @@
 apt-get update && apt-get -y upgrade
-apt install -y git yarnpkg mongo pipenv
+# install for frontend framework puppeteer
+apt install -y git yarnpkg mongo
+# install for backend framework django
+apt install pipenv build-essential python3.8-dev
 
 # ansible 利用のための設定
 ## デフォルトのログインユーザー,vagrantの場合はvagrant,awsなどはec2-userなど
@@ -49,18 +52,15 @@ EOF
 
 # $loginuserのファイルを他のユーザーに渡すためのディレクトリ
 mkdir -m 755 /home/public
-# mkdir -m 700 /home/public/$loginuser
+mkdir -m 750 /home/public/$loginuser
 chown $loginuser:$loginuser /home/public/$loginuser
 
 # ansibleユーザーに対してのみ、ディレクトリに対し読み込みと実行権限を与える。
 # ここにあるファイルの削除は$loginuserの責任とする。
-setfacl -m d:u:ansible:rx /home/public/$loginuser
-setfacl -m d:g::--- /home/public/$loginuser
+usermod -aG $loginuser ansible
 
 # ログインユーザーの環境変数に他のユーザーとの共有用のディレクトリを書いておく。
 su $loginuser -c "echo export PUPPETEER_DATA=/home/public/$loginuser >> /home/$loginuser/.profile"
-
-su $loginuser -c "python3 -m venv pythondevelop"
 
 # djangoのsecret_keyを作成する。djangoからは環境変数という形で引き継ぐ
 apt install -y python3-django
@@ -75,6 +75,8 @@ with open(os.path.join(os.environ['HOME'],'.profile'), 'a') as f:
 END
 # アプリケーションはプロジェクトにある側のdjangoを使うので、os側のものはアンインストールしておく。
 apt remove -y python3-django
+
+su $loginuser -c "echo export DJANGO_ALLOWED_HOST=$(hostname) >> /home/$loginuser/.profile"
 
 ## puppeteerはデスクトップ環境が必要なためインストール。
 ## ログイン自体はcuiでもいいのでmulti-userにしておく。

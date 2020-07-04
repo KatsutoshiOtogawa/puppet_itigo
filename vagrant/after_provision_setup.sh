@@ -30,7 +30,7 @@ mkdir -m 700 $ssh_directory
 if [ $ssh_config_host == 'vagrant' ]; then
     # vagrant(server)側の設定をクライアント側のPCに書く。
     vagrant ssh-config  --host $ssh_config_host >> $ssh_directory/config
-if
+fi
 
 # 指定されたssh/configが無い場合はエラーにして設定を求める
 cat $ssh_directory/config | grep -E ^Host | grep $ssh_config_host >> /dev/null
@@ -75,12 +75,15 @@ ssh -F $ssh_directory/config $ssh_config_host "echo export PUPPETEER_USERNAME=$P
 # アプリケーションのパスワード名
 read -sp "input site password>" PUPPETEER_PASSWORD
 ssh -F $ssh_directory/config $ssh_config_host "echo export PUPPETEER_PASSWORD=$PUPPETEER_PASSWORD >> /home/$loginuser/.profile"
+echo ""
+
 
 # ansibleで解決できないか確認。
 # アプリケーションサーバーの外部から参照するためのホスト名
 # これがないとALLOWED_HOSTなどを開発時と環境時でがちゃがちゃ触る必要があるので、
 # 非効率。
+echo "added recored to /etc/hosts"
 sudo su <<END
-    echo # below record is develop server record. >> /etc/hosts
+    echo "# below record is develop server record." >> /etc/hosts
     echo "$server_ip $server_hostname $server_hostname" >> /etc/hosts
 END
