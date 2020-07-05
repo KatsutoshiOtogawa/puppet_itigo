@@ -17,19 +17,6 @@ const client = new MongoClient(uri, { useNewUrlParser: true });
 
 const environment = "test"
 
-// var rs = fs.createReadStream(path.join(__dirname,'data','list.txt'));
-
-// var rl = readline.createInterface(rs, {});
-
-// rl.on('line', function(line) {
-//     if(validator.isURL(line)){
-//         const stdout = execSync(['youtube-dl','-o', "'" + path.join(__dirname,'data','output','%(title)s.%(ext)s') + "'",line].join(' '))
-//         console.log(`stdout: ${stdout.toString()}`)
-
-//     }
-
-// });
-
 if (process.env.PUPPETEER_USERNAME == null || process.env.PUPPETEER_PASSWORD == null) {
   console.log("you must input environment variable PUPPETEER_USERNAME and PUPPETEER_PASSWORD")
   process.exit(1)
@@ -91,15 +78,19 @@ if (process.env.PUPPETEER_USERNAME == null || process.env.PUPPETEER_PASSWORD == 
   // textareaが描画されるまで待つ
   await page.waitFor('textarea[name="frm_src"]');
   
-  url = await page.$eval('textarea[name="frm_src"]', item => {
+  affiriateurl = await page.$eval('textarea[name="frm_src"]', item => {
     return item.textContent;
   });
 
-  console.log(await url)
   client.connect(err => {
     const collection = client.db(environment).collection("links");
 
-    collection.insertOne({affiliateurl: await url})
+    collection.find(url: 1).replace_one('$set' => {affiliateurl: affiriateurl})
+    collection.insertOne({
+      url: ,
+      affiliateurl: affiriateurl,
+      img: true
+    })
     // perform actions on the collection object
     client.close();
   });
